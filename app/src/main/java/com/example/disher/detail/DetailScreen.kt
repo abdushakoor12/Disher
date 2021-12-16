@@ -26,6 +26,7 @@ import com.zhuinden.simplestack.ServiceBinder
 import com.zhuinden.simplestackcomposeintegration.services.rememberService
 import com.zhuinden.simplestackextensions.servicesktx.add
 import com.zhuinden.simplestackextensions.servicesktx.get
+import com.zhuinden.simplestackextensions.servicesktx.lookup
 import kotlinx.parcelize.Parcelize
 
 @Immutable
@@ -34,7 +35,7 @@ data class DetailScreen(private val mealId: String): ComposeKey() {
 
     override fun bindServices(serviceBinder: ServiceBinder) {
         with(serviceBinder){
-            add(DetailViewModel(get(), get(), mealId))
+            add(DetailViewModel(lookup(), lookup(), mealId))
         }
     }
 

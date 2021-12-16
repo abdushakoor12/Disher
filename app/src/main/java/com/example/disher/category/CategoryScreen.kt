@@ -27,6 +27,7 @@ import com.zhuinden.simplestack.ServiceBinder
 import com.zhuinden.simplestackcomposeintegration.services.rememberService
 import com.zhuinden.simplestackextensions.servicesktx.add
 import com.zhuinden.simplestackextensions.servicesktx.get
+import com.zhuinden.simplestackextensions.servicesktx.lookup
 import kotlinx.parcelize.Parcelize
 
 @Immutable
@@ -35,7 +36,7 @@ class CategoryScreen(private val noArgsPlaceholder: String = "") : ComposeKey() 
 
     override fun bindServices(serviceBinder: ServiceBinder) {
         with(serviceBinder) {
-            add(CategoryViewModel(get(), backstack))
+            add(CategoryViewModel(lookup(), backstack))
         }
     }
 
