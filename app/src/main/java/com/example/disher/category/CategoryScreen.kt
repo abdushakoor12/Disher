@@ -11,32 +11,48 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
-import com.example.disher.category.model.Category
+import com.example.disher.ComposeKey
+import com.example.disher.category.usecase.IGetCategoriesUseCase
 import com.example.disher.category.viewmodel.CategoryViewModel
+import com.zhuinden.simplestack.ServiceBinder
+import com.zhuinden.simplestackcomposeintegration.services.rememberService
+import com.zhuinden.simplestackextensions.servicesktx.add
+import com.zhuinden.simplestackextensions.servicesktx.get
+import kotlinx.parcelize.Parcelize
 
-@Composable
-fun CategoryScreen(
-    viewmodel: CategoryViewModel = hiltViewModel(),
-    onItemClick: (String) -> Unit
-) {
-    val listOfCategories by remember { viewmodel.listOfCategories }
+@Immutable
+@Parcelize
+class CategoryScreen(private val noArgsPlaceholder: String = "") : ComposeKey() {
 
-    LazyColumn {
-        items(listOfCategories) { item ->
-            SingleItem(item.strCategory, item.strCategoryThumb) {
-                onItemClick(it)
+    override fun bindServices(serviceBinder: ServiceBinder) {
+        with(serviceBinder) {
+            add(CategoryViewModel(get(), backstack))
+        }
+    }
+
+    @Composable
+    override fun ScreenComposable(modifier: Modifier) {
+        val viewmodel = rememberService<CategoryViewModel>()
+        val listOfCategories by remember { viewmodel.listOfCategories }
+
+        LazyColumn {
+            items(listOfCategories) { item ->
+                SingleItem(item.strCategory, item.strCategoryThumb) {
+                    viewmodel.onItemClick(it)
+                }
             }
         }
     }
+
 }
 
 @OptIn(ExperimentalCoilApi::class)
@@ -44,7 +60,7 @@ fun CategoryScreen(
 fun SingleItem(
     title: String,
     thumbnail: String,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier

@@ -2,13 +2,12 @@ package com.example.disher.detail.usecase
 
 import com.example.disher.detail.model.DetailResponse
 import com.example.disher.detail.repository.IDetailRepository
-import javax.inject.Inject
 
 interface IGetDetailsUseCase {
     suspend operator fun invoke(id: String): DetailResponse
 }
 
-class GetDetailsUseCase @Inject constructor(
+class GetDetailsUseCase constructor(
     val repo: IDetailRepository
 ) : IGetDetailsUseCase{
 

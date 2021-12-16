@@ -10,25 +10,28 @@ import com.example.disher.db.DisherDao
 import com.example.disher.detail.model.MealDetail
 import com.example.disher.detail.model.convertToSmaller
 import com.example.disher.detail.usecase.IGetDetailsUseCase
-import com.example.disher.dishes.viewmodel.ViewState
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import com.zhuinden.simplestack.ScopedServices
+import kotlinx.coroutines.*
 
-@HiltViewModel
-class DetailViewModel @Inject constructor(
+class DetailViewModel constructor(
     val usecase: IGetDetailsUseCase,
-    val dao: DisherDao
-) : ViewModel() {
+    val dao: DisherDao,
+    val mealId: String
+) : ScopedServices.Registered {
+
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _meal: MutableState<MealDetail?> = mutableStateOf(null)
     val meal: State<MealDetail?> = _meal
 
+    override fun onServiceRegistered() {
+        getDetailsForDishId(mealId)
+    }
+
     //TODO
-    fun getDetailsForDishId(id: String) {
+    private fun getDetailsForDishId(id: String) {
         Log.d("BK", "$id")
-        viewModelScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.IO) {
             try {
                 val mealDetailResponse = usecase(id)
                 Log.d("BK", "${mealDetailResponse.meals[0].strMeal}")
@@ -42,9 +45,12 @@ class DetailViewModel @Inject constructor(
     }
 
     fun saveToFavourites(mealDetail: MealDetail){
-       viewModelScope.launch {
+        coroutineScope.launch {
            dao.saveMeal(mealDetail.convertToSmaller())
        }
     }
 
+    override fun onServiceUnregistered() {
+        coroutineScope.cancel()
+    }
 }

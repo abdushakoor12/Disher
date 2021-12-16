@@ -3,82 +3,50 @@ package com.example.disher
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import com.example.disher.category.CategoryScreen
-import com.example.disher.detail.DetailScreen
-import com.example.disher.dishes.DishesScreen
 import com.example.disher.ui.theme.DisherTheme
-import dagger.hilt.android.AndroidEntryPoint
+import com.zhuinden.simplestack.AsyncStateChanger
+import com.zhuinden.simplestack.History
+import com.zhuinden.simplestack.navigator.Navigator
+import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
+import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger
+import com.zhuinden.simplestackextensions.navigatorktx.androidContentFrame
+import com.zhuinden.simplestackextensions.services.DefaultServiceProvider
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val composeStateChanger = ComposeStateChanger()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val application = application as DisherApplication
+
+        val backstack = Navigator.configure()
+            .setStateChanger(AsyncStateChanger(composeStateChanger))
+            .setScopedServices(DefaultServiceProvider())
+            .setGlobalServices(application.globalServices)
+            .install(this, androidContentFrame, History.of(CategoryScreen()))
+
         setContent {
-            DisherTheme {
-                DisherApp()
+            BackstackProvider(backstack) {
+                DisherTheme {
+                    Box(Modifier.fillMaxSize()) {
+                        composeStateChanger.RenderScreen()
+                    }
+                }
             }
         }
     }
-}
 
-
-@Composable
-fun DisherApp() {
-    //TODO
-    /**
-     * split this NavHost
-     * composables - cs
-     * composables - DishesScreen
-     */
-
-    val navController = rememberNavController()
-
-    NavHost(navController = navController, startDestination = "category") {
-
-        composable("category") {
-            CategoryScreen { category ->
-                navController.navigate("dishes/${category}")
-                // /${str}
-            }
+    override fun onBackPressed() {
+        if (!Navigator.onBackPressed(this)) {
+            super.onBackPressed()
         }
-
-        composable("dishes/{category}", arguments = listOf(navArgument("category") {
-            type = NavType.StringType
-        })) {
-
-            val categoryStr = remember {
-                it.arguments?.getString("category")
-            }
-
-            DishesScreen(category = categoryStr) { dishid ->
-                navController.navigate("detail/${dishid}")
-            }
-        }
-
-        composable("detail/{mealid}", arguments = listOf(navArgument("mealid") {
-            type = NavType.StringType
-        })) {
-
-            val mealStrId = remember {
-                it.arguments?.getString("mealid")
-            }
-
-            DetailScreen(mealId = mealStrId)
-        }
-
-        //TODO final screen detail
-
     }
-    //DishesScreen()
-    //CategoryScreen()
 }
-
 
 //www.themealdb.com/api/json/v1/1/categories.php

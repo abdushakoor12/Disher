@@ -6,12 +6,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.disher.detail.DetailScreen
 import com.example.disher.dishes.model.DishesResponse
 import com.example.disher.dishes.model.Meal
 import com.example.disher.dishes.usecase.IGetDishesUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import com.zhuinden.simplestack.Backstack
+import com.zhuinden.simplestack.ScopedServices
+import kotlinx.coroutines.*
 
 sealed class ViewState {
     object Loading : ViewState()
@@ -19,17 +20,24 @@ sealed class ViewState {
     data class Error(val errorMessage: String) : ViewState()
 }
 
-@HiltViewModel
-class DishesViewModel @Inject constructor(
-    val usecase: IGetDishesUseCase
-) : ViewModel() {
+class DishesViewModel constructor(
+    val usecase: IGetDishesUseCase,
+    val category: String,
+    val backstack: Backstack,
+) : ScopedServices.Registered {
+
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _viewState: MutableState<ViewState> = mutableStateOf(ViewState.Loading)
     val viewState: State<ViewState> = _viewState
 
-    fun getDishesForCategory(catName: String) {
+    override fun onServiceRegistered() {
+        getDishesForCategory(category)
+    }
+
+    private fun getDishesForCategory(catName: String) {
         _viewState.value = ViewState.Loading
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 val listDishes = usecase(catName)
                 _viewState.value = ViewState.Success(listDishes)
@@ -38,6 +46,14 @@ class DishesViewModel @Inject constructor(
                 _viewState.value = ViewState.Error(e.message ?: "Unknown error sad times")
             }
         }
+    }
+
+    override fun onServiceUnregistered() {
+        coroutineScope.cancel()
+    }
+
+    fun onDishClicked(dishId: String) {
+        backstack.goTo(DetailScreen(dishId))
     }
 
 }

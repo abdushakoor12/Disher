@@ -5,7 +5,6 @@ import com.example.disher.dishes.model.DishesResponse
 import com.example.disher.dishes.service.IDishesService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 
 interface IDishesRepository {
@@ -14,7 +13,7 @@ interface IDishesRepository {
 
 }
 
-class DishesRepository @Inject constructor(
+class DishesRepository constructor(
     val service: IDishesService,
     val dao: DisherDao,
     val dispatcher: CoroutineDispatcher
