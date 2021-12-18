@@ -24,6 +24,14 @@ The aim of this app is to be a proper, professional, modern & clean app. That me
 
 Feel free to code however you like and if you would like, I will happily give you feedback in order to help you learn if you would like it...
 
+<br />
+
+## Day Mode
+
+|   Categories    | Dishes    |   Details
+|---	|---	|---
+|  ![](https://github.com/abdushakoor12/Disher/blob/variation-2/images/categories.jpg)    |  ![](https://github.com/abdushakoor12/Disher/blob/variation-2/images/dishes.jpg)    |   ![](https://github.com/abdushakoor12/Disher/blob/variation-2/images/details.jpg)
+
 # Progress & API
 
 So the app relies upon the excellent `mealdb` api that provides the caller with different food based information.
