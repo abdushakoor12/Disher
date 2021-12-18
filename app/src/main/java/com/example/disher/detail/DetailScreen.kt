@@ -1,22 +1,29 @@
 package com.example.disher.detail
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.disher.ComposeKey
@@ -49,27 +56,51 @@ data class DetailScreen(private val mealId: String): ComposeKey() {
 
         singleDish?.let {
             Column(modifier = Modifier) {
-                Text(it.strMeal)
-                Text(it.strArea)
-                //TODO ic_heart_outline
-                Image(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clickable {
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Image(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Fit,
+                        painter = rememberImagePainter(
+                            it.strMealThumb
+                        ), contentDescription = null
+                    )
+
+                    Row(
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        IconButton(onClick = {
+                            uriHandler.openUri(it.strYoutube)
+                        }) {
+                            Icon(imageVector = Icons.Filled.PlayArrow,  contentDescription = null, tint = Color.White)
+                        }
+                        IconButton(onClick = {
                             viewmodel.saveToFavourites(it)
-                        },
-                    painter = painterResource(R.drawable.ic_heart),
-                    contentDescription = null
-                )
-                Image(
-                    modifier = Modifier.size(80.dp), painter = rememberImagePainter(
-                        it.strMealThumb
-                    ), contentDescription = null
-                )
-                //TODO clickable link
-                ClickableText(text = AnnotatedString(it.strYoutube), onClick = { _ ->
-                    uriHandler.openUri(it.strYoutube)
-                })
+                        }) {
+                            Icon(imageVector = Icons.Filled.Favorite,  contentDescription = null, tint = Color.Red)
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier.background((Color(0x4D000000)))
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                    ){
+                        Column(
+                            modifier = Modifier
+                                .padding(12.dp)
+
+                        ) {
+                            Text(it.strMeal, style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp))
+                            Text(it.strArea, style = TextStyle(color = Color.White, fontSize = 14.sp))
+                        }
+                }
+
+
+                }
 
 
                 InstructionTextBlock(
